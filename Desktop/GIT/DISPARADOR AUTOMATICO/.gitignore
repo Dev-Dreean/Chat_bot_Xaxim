@@ -1,5 +1,30 @@
+# Arquivos sensíveis/pessoais
+documentos/PDFS/*.pdf
+dados/*.xlsx
+
+# Dependências
 node_modules/
+
+# Autenticação do Baileys
 auth_info_baileys/
-*.log
+
+# Variáveis de ambiente
 .env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Outros
 package-lock.json
