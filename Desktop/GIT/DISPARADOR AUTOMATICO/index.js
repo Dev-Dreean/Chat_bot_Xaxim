@@ -12,7 +12,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import readline from 'readline';
 import { GerenciadorExcel, ProgressoBarra } from './gerenciador-excel.js';
-import { DistribuidorInteligente } from './distribuidor-inteligente.js';
+import { DistribuidorInteligente, GerenciadorRateLimiting } from './distribuidor-inteligente.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -301,12 +301,17 @@ async function iniciarWhatsApp() {
  */
 async function dispararMensagens(sock) {
     try {
+        const dados = lerPlanilha();
+        const distribuidor = new DistribuidorInteligente(8, 18); // 8h às 18h
+        const plano = distribuidor.criarPlanoDeDistribuicao(dados.length);
+
         console.log('\n' + '='.repeat(80));
         console.log('🚀 INICIANDO DISPARO EM MASSA');
-        console.log('='.repeat(80) + '\n');
+        console.log('='.repeat(80));
+        console.log(distribuidor.formatarPlano(plano));
 
-        const dados = lerPlanilha();
         const gerenciador = new GerenciadorExcel(CONFIG.planilhaPath);
+        const rateLimiting = new GerenciadorRateLimiting();
         const progresso = new ProgressoBarra(dados.length);
 
         // Carrega o Excel para atualizar status
@@ -316,6 +321,7 @@ async function dispararMensagens(sock) {
         let erros = 0;
         let pdfNaoEncontrado = 0;
         let pulados = 0;
+        let pausasAutomaticas = 0;
 
         // Obtém linhas que ainda precisam ser enviadas
         const linhasPendentes = gerenciador.obterLinhasPendentes();
@@ -386,13 +392,29 @@ async function dispararMensagens(sock) {
                 await gerenciador.marcarSucesso(i, `Enviado para: ${telefone}`);
                 sucessos++;
 
+                // Verifica rate limiting
+                const statusRateLimit = rateLimiting.registrarEnvio();
+                if (statusRateLimit.status !== 'OK') {
+                    console.log('\n' + statusRateLimit.violacoes.join('\n'));
+                }
+
+                // Verifica necessidade de pausa
+                const pausaInfo = rateLimiting.verificarNecessidadePausa();
+                if (pausaInfo.pausaRecomendada) {
+                    console.log(`\n${pausaInfo.mensagem}`);
+                    pausasAutomaticas++;
+                    await delay(pausaInfo.tempoMs);
+                }
+
                 // Registra progresso
                 progresso.registrarEnvio(Date.now() - tempoInicio);
 
-                // Delay entre mensagens para evitar ban
+                // Delay inteligente com variação para simular humano
                 if (i < dados.length - 1) {
-                    await delay(CONFIG.delayEntreMensagens);
+                    const delayComVariacao = distribuidor.gerarDelayComVariacao(plano.delay);
+                    await delay(delayComVariacao);
                 }
+
 
             } catch (error) {
                 const motivo = error.message || 'Erro desconhecido';
@@ -414,7 +436,9 @@ async function dispararMensagens(sock) {
         console.log(`❌ Erros: ${erros}`);
         console.log(`⚠️  PDFs não encontrados: ${pdfNaoEncontrado}`);
         console.log(`⏸️  Já enviados (pulados): ${pulados}`);
-        console.log(`📊 Total na planilha: ${dados.length}`);
+        console.log(`� Pausas automáticas (anti-spam): ${pausasAutomaticas}`);
+        console.log(`�📊 Total na planilha: ${dados.length}`);
+        console.log('='.repeat(80));
         console.log('='.repeat(80));
         console.log('='.repeat(80));
         console.log(`\n📁 Planilha atualizada: ${CONFIG.planilhaPath}`);
