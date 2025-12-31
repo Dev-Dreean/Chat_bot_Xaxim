@@ -33,16 +33,17 @@ git push origin main
 6. Clique em **"Create Web Service"**
 7. **Copie a URL** do seu serviço (ex: `https://fraldas-backend.onrender.com`)
 
-### 3️⃣ CONFIGURE A URL NO INDEX.HTML
+### 3️⃣ URL DO RENDER JÁ CONFIGURADA ✅
 
-No seu arquivo `index.html`, procure por:
+**Boa notícia!** A URL do Render já está configurada no `index.html`:
+
 ```javascript
 const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? 'http://localhost:8080'
-    : 'https://fraldas-backend.onrender.com'; // ALTERE AQUI
+    : 'https://fraldas-backend.onrender.com';
 ```
 
-**Substitua `fraldas-backend.onrender.com` pela URL que o Render gerou para você.**
+**Aguarde:** O Render fará o deploy automático assim que detectar conteúdo no repositório GitHub.
 
 ### 4️⃣ DEPLOY NO NETLIFY (FRONTEND)
 
@@ -57,14 +58,24 @@ const API_URL = window.location.hostname === 'localhost' || window.location.host
    - Build command: (deixe em branco)
    - Publish directory: `.` (raiz do projeto)
 
-### 5️⃣ TESTE NO MOBILE
+### 5️⃣ AGUARDE O DEPLOY NO RENDER
 
-```
-1. Abra a URL do Netlify no celular
+**Status atual:**
+- ✅ Web Service criado no Render
+- ✅ Variáveis de ambiente configuradas
+- ✅ Código enviado para o GitHub
+- ⏳ Render fazendo deploy automático...
+
+O deploy geralmente leva de 2 a 5 minutos. Você pode acompanhar em: https://dashboard.render.com
+
+### 6️⃣ TESTE NO MOBILE
+
+**Após o Render completar o deploy (aguarde ~5 minutos):**
+
+1. Abra a URL do Netlify no celular: https://warm-unicorn-a13d8c.netlify.app/
 2. Clique em "Pagar"
 3. Veja se consegue gerar o link do Mercado Pago
 4. Tente completar um pagamento de teste
-```
 
 ## ⚠️ POSSÍVEIS ERROS E SOLUÇÕES
 
@@ -85,11 +96,19 @@ const API_URL = window.location.hostname === 'localhost' || window.location.host
 
 ## 🧪 TESTE RÁPIDO
 
-Após fazer o deploy, teste a API assim:
+Após o Render completar o deploy, teste a API assim:
+
+**Navegador (ou terminal):**
 ```
 https://fraldas-backend.onrender.com/
 ```
-Você deve ver: `{"status":"Backend rodando com sucesso!"}`
+
+**Resultado esperado:**
+```json
+{"status":"Backend rodando com sucesso!"}
+```
+
+**⚠️ Nota:** A primeira requisição pode levar até 30 segundos porque o Render ativa o serviço sob demanda no plano Free.
 
 ## 📱 URL FINAL PARA COMPARTILHAR
 
