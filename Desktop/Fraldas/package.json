@@ -1,0 +1,21 @@
+{
+  "name": "cha-de-fraldas-ethan",
+  "version": "1.0.0",
+  "description": "Sistema de pagamento para Chá de Fraldas do Ethan",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["mercado-pago", "payment"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "mercadopago": "^2.0.0"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}

@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chá de Fraldas do Ethan</title>
+
+    <!-- Tailwind CSS (Estilo) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonte Fofa (Nunito) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Configuração para Importação de Módulos -->
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "lucide-react": "https://esm.sh/lucide-react@0.292.0?deps=react@18.2.0",
+        "date-fns": "https://esm.sh/date-fns@2.30.0"
+      }
+    }
+    </script>
+
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        /* Fonte Nunito para tudo */
+        body {
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* Bloqueia comportamentos elásticos de scroll no iOS */
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            overscroll-behavior: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        @keyframes bounce-gentle {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .animate-bounce-gentle {
+            animation: bounce-gentle 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse-subtle {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .animate-pulse-subtle {
+            animation: pulse-subtle 2s infinite;
+        }
+
+        @keyframes border-gold-shimmer {
+            0% {
+                border-color: #eab308;
+            }
+
+            50% {
+                border-color: #fef08a;
+            }
+
+            100% {
+                border-color: #eab308;
+            }
+        }
+
+        @keyframes epic-glow {
+            0% {
+                box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(234, 179, 8, 0.6);
+            }
+
+            100% {
+                box-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+            }
+        }
+
+        .epic-container {
+            border-width: 2px;
+            border-style: solid;
+            animation: border-gold-shimmer 3s infinite alternate, epic-glow 3s infinite alternate;
+        }
+
+        @keyframes ticker {
+            0% {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+
+            10% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            90% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+        }
+
+        .animate-ticker {
+            animation: ticker 4s ease-in-out infinite;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 5px;
+            height: 5px;
+            background-color: #fbbf24;
+            animation: fall linear infinite;
+            z-index: 0;
+            opacity: 0;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(110vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Fundo de Bolinhas Fofo */
+        .bg-dots {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.5) 2px, transparent 2px);
+            background-size: 20px 20px;
+        }
+
+        /* Animação Flutuante para os ícones de fundo */
+        @keyframes float-icon {
+            0% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(5deg);
+            }
+
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+        }
+
+        .floating-icon {
+            animation: float-icon 8s ease-in-out infinite;
+        }
+
+        body {
+            transition: background-color 0.8s ease;
+        }
+
+        .theme-transition {
+            transition: all 0.5s ease;
+        }
+
+        .card-morph {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+
+<body class="font-sans" id="main-body">
+    <div id="root" class="w-full h-full flex justify-center"></div>
+
+    <script type="text/babel" data-type="module">
+        import React, { useState, useEffect, useRef } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import { Heart, Gift, Baby, CreditCard, ShoppingBag, PartyPopper, Smile, Ticket, Utensils, AlertCircle, Loader2, ArrowRight, Code, Check, Package, TrendingUp, Star, Crown, Medal, Users, Thermometer, Shirt, Milk, Sparkles, Zap, CloudRain, Lock, Unlock, Home, MessageSquare, Send, Cloud, PenTool, ShieldCheck, List, X, QrCode, Banknote, Sun, Moon } from 'lucide-react';
+        import { format } from 'date-fns';
+
+        // --- CONFIGURAÇÕES DE API ---
+        // Detecta automaticamente o ambiente (local ou produção no Render)
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8080'
+            : 'https://fraldas-backend.onrender.com'; // ALTERE PARA MINHA URL DO RENDER
+
+        // --- CONFIGURAÇÕES GERAIS ---
+        const BINGO_PRICE = 40;
+        const BINGO_MAX_TICKETS = 3;
+        const MIN_DONATION = 20;
+        const EPIC_THRESHOLD = 140;
+        const BINGO_EPIC_THRESHOLD = 120;
+
+        const FAKE_DONORS = [
+            { name: "Tia Ju", msg: "Saúde pro Ethan!", time: "2m" },
+            { name: "Primo Rafa", msg: "Quero ganhar!", time: "5m" },
+            { name: "Vovó", msg: "Presentinho", time: "12m" },
+            { name: "Carla RH", msg: "Parabéns!", time: "18m" },
+        ];
+
+        // --- LISTA DE PRESENTES REAL ---
+        const RAW_WISHLIST_ITEMS = [
+            { id: 1, name: "Culotes/calças", price: 49.90, rating: 4.8, category: "Roupas", installments: "em até 12x", status: "Meta: 10 un" },
+            { id: 2, name: "Luvas", price: 37.90, rating: 5.0, category: "Roupas", installments: "em até 12x", status: "Meta: 5 pares" },
+            { id: 3, name: "Toucas/gorros", price: 74.90, rating: 5.0, category: "Roupas", installments: "em até 12x", status: "Meta: 5 un" },
+            { id: 4, name: "Casaquinhos", price: 39.90, rating: 4.9, category: "Roupas", installments: "em até 12x", status: "Meta: 5 un" },
+            { id: 5, name: "Lençóis berço", price: 65.45, rating: 4.7, category: "Quarto", installments: "em até 12x", status: "Meta: 4 jogos" },
+            { id: 6, name: "Sabonete neutro", price: 25.90, rating: 4.9, category: "Higiene", installments: "em até 12x", status: "Meta: 10 un" },
+            { id: 7, name: "Shampoo infantil", price: 40.55, rating: 4.9, category: "Higiene", installments: "em até 12x", status: "Meta: 10 un" },
+            { id: 8, name: "Algodão/Cotonetes", price: 12.99, rating: 4.9, category: "Higiene", installments: "em até 12x", status: "Meta: 15 kits" },
+            { id: 9, name: "Pomada assaduras", price: 42.90, rating: 4.9, category: "Higiene", installments: "em até 12x", status: "Meta: 15 un" },
+            { id: 10, name: "Cortador unhas", price: 38.70, rating: 4.9, category: "Higiene", installments: "em até 12x", status: "Meta: 1 un" },
+            { id: 11, name: "Mamadeiras", price: 35.00, rating: 4.9, category: "Alimentação", installments: "em até 12x", status: "Meta: 4 un" },
+            { id: 12, name: "Escova mamadeira", price: 69.90, rating: 5.0, category: "Alimentação", installments: "em até 12x", status: "Meta: 2 un" },
+            { id: 13, name: "Termômetro", price: 21.33, rating: 4.9, category: "Saúde", installments: "em até 12x", status: "Meta: 1 un" },
+            { id: 14, name: "Kit 1º socorros", price: 48.93, rating: 4.8, category: "Saúde", installments: "em até 12x", status: "Meta: 1 un" },
+            { id: 15, name: "Fraldas P", price: 42.79, rating: 4.8, category: "Fraldas", installments: "em até 12x", status: "Meta: 30 pct" },
+            { id: 16, name: "Fraldas M", price: 38.80, rating: 4.9, category: "Fraldas", installments: "em até 12x", status: "Meta: 60 pct" },
+            { id: 17, name: "Fraldas G", price: 72.99, rating: 4.9, category: "Fraldas", installments: "em até 12x", status: "Meta: 50 pct" },
+            { id: 18, name: "Kit 4 lenços", price: 42.93, rating: 4.9, category: "Higiene", installments: "em até 12x", status: "Meta: 15 un" },
+            { id: 19, name: "Bolsa térmica", price: 90.38, rating: 4.7, category: "Passeio", installments: "em até 12x", status: "Meta: 1 un" },
+            { id: 20, name: "Almofada banho", price: 99.41, rating: 4.8, category: "Banho", installments: "em até 12x", status: "Meta: 1 un" },
+            { id: 21, name: "Saída Maternidade Luxo", price: 156.90, rating: 4.9, category: "Roupas", installments: "em até 12x", status: "Meta: 1 un" },
+            { id: 22, name: "Cadeira Refeição", price: 168.32, rating: 4.9, category: "Alimentação", installments: "em até 12x", status: "Esgotado" }
+        ];
+
+        const DONATION_OPTIONS = [
+            { value: 20, icon: "wipes", color: "bg-cyan-100 border-cyan-300 text-cyan-700" },
+            { value: 40, icon: "cream", color: "bg-pink-100 border-pink-300 text-pink-700" },
+            { value: 60, icon: "diaper_small", color: "bg-green-100 border-green-300 text-green-700", featured: true },
+            { value: 80, icon: "diaper_large", color: "bg-blue-100 border-blue-300 text-blue-700" },
+            { value: 100, icon: "health_kit", color: "bg-red-100 border-red-300 text-red-700" },
+            { value: 140, icon: "crown", color: "bg-purple-100 border-purple-300 text-purple-800", special: true }, // VIP
+        ];
+
+        const BINGO_OPTIONS = [
+            { value: 40, icon: "ticket", color: "bg-orange-100 border-orange-300 text-orange-800" },
+            { value: 80, icon: "ticket", color: "bg-slate-100 border-slate-300 text-slate-800" },
+            { value: 120, icon: "crown", color: "bg-slate-900 border-yellow-400 text-yellow-400", featured: true }
+        ];
+
+        // --- COMPONENTES VISUAIS ---
+        const BackgroundDecorations = ({ theme }) => {
+            const icons = [{ Icon: Baby, top: '10%', left: '5%', size: 40 }, { Icon: Heart, top: '15%', right: '10%', size: 30 }, { Icon: Star, top: '40%', left: '8%', size: 25 }, { Icon: Milk, top: '60%', right: '5%', size: 35 }, { Icon: Cloud, top: '80%', left: '15%', size: 50 }, { Icon: Gift, top: '85%', right: '12%', size: 40 }];
+            const colorClass = theme === 'epic' ? 'text-white opacity-10' : 'text-blue-900 opacity-5';
+            return <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">{icons.map((item, idx) => <div key={idx} className={`absolute floating-icon ${colorClass}`} style={{ top: item.top, left: item.left, right: item.right, animationDelay: `${idx}s` }}><item.Icon size={item.size} /></div>)}</div>;
+        };
+
+        const ConfettiRain = () => <div className="fixed inset-0 pointer-events-none z-0">{Array.from({ length: 30 }).map((_, i) => <div key={i} className="confetti" style={{ left: `${Math.random() * 100}vw`, animationDuration: `${Math.random() * 3 + 2}s`, animationDelay: `${Math.random() * 5}s` }}></div>)}</div>;
+
+        const ModeSwitcher = ({ isBingoMode, onToggle, currentTheme, isLocked }) => {
+            const isEpic = currentTheme === 'epic';
+            const containerClass = isEpic ? "bg-slate-900 border-yellow-600/30" : "bg-white/50 backdrop-blur-sm border-blue-200 shadow-sm";
+            const sliderClass = isBingoMode
+                ? (isEpic ? "bg-gradient-to-r from-purple-600 to-pink-600 border-purple-400" : "bg-gradient-to-r from-orange-400 to-red-500 border-orange-300 shadow-orange-200")
+                : (isEpic ? "bg-slate-800 border-yellow-500/50" : "bg-white border-blue-200 shadow-md");
+            const textActiveArrecadacao = isEpic ? "text-white" : "text-blue-600";
+            const textActiveBingo = "text-white drop-shadow-sm";
+            const textInactive = isEpic ? "text-slate-500" : "text-gray-400";
+
+            return (
+                <div className={`relative w-full h-11 rounded-2xl p-1 flex items-center cursor-pointer transition-all duration-500 border ${containerClass} shrink-0`}>
+                    <div className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-xl transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${sliderClass}`} style={{ left: isBingoMode ? '50%' : '4px' }} />
+                    <button onClick={() => onToggle(false)} className={`relative z-10 w-1/2 h-full flex items-center justify-center gap-1.5 text-xs font-black tracking-wide transition-colors ${!isBingoMode ? textActiveArrecadacao : textInactive}`}>
+                        <Gift size={14} className={!isBingoMode && !isEpic ? "fill-blue-100" : ""} /><span>ARRECADAÇÃO</span>
+                    </button>
+                    <button onClick={() => onToggle(true)} className={`relative z-10 w-1/2 h-full flex items-center justify-center gap-1.5 text-xs font-black tracking-wide transition-colors ${isBingoMode ? textActiveBingo : textInactive}`}>
+                        {isLocked ? <Lock size={12} /> : <Ticket size={14} className="fill-white/20" />}<span>BINGO</span>
+                    </button>
+                </div>
+            );
+        };
+
+        // --- MODAL DE LISTA DE PRESENTES ---
+        const GiftListModal = ({ isOpen, onClose, onSelect, items }) => {
+            if (!isOpen) return null;
+            const sortedItems = [...items].sort((a, b) => a.name.localeCompare(b.name));
+
+            return (
+                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4 animate-fadeIn backdrop-blur-sm">
+                    <div className="bg-white w-full max-w-sm h-[80vh] rounded-[32px] flex flex-col overflow-hidden shadow-2xl relative">
+                        <div className="p-4 bg-blue-500 text-white flex justify-between items-center shrink-0"><div className="flex items-center gap-2"><List size={20} /><h3 className="font-black text-lg">Lista de Presentes</h3></div><button onClick={onClose} className="bg-white/20 p-1 rounded-full hover:bg-white/30 transition"><X size={20} /></button></div>
+                        <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">{sortedItems.map((item, idx) => (
+                            <button key={idx} onClick={() => onSelect(item)} className="w-full p-3 rounded-xl border-2 flex items-center justify-between transition-all duration-200 text-left relative overflow-hidden group bg-white border-blue-100 hover:border-blue-400 hover:shadow-md active:scale-95">
+                                <div className="flex-1 pr-2"><div className="flex justify-between items-center"><span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{item.category}</span><div className="flex items-center gap-0.5 text-[10px] text-yellow-500 font-bold bg-yellow-50 px-1.5 py-0.5 rounded-full"><Star size={8} fill="currentColor" /> {item.rating}</div></div><h4 className="font-bold text-sm leading-tight text-gray-800 mt-1">{item.name}</h4><p className="text-[10px] font-black mt-1 inline-block bg-green-50 text-green-600 px-2 py-0.5 rounded-md border border-green-100 shadow-sm"><span className="opacity-70 mr-0.5">💳</span>{item.installments}</p></div>
+                                <div className="text-right"><div className="text-lg font-black text-blue-600">R$ {item.price.toFixed(2).replace('.', ',')}</div><div className="text-[10px] font-bold px-2 py-0.5 rounded-full inline-block mt-1 bg-blue-50 text-blue-500 whitespace-nowrap">{item.status}</div></div>
+                            </button>
+                        ))}</div>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('home');
+            const [amount, setAmount] = useState('');
+            const [selectedProduct, setSelectedProduct] = useState(null);
+            const [message, setMessage] = useState('Escolha um presente!');
+            const [productVisual, setProductVisual] = useState(null);
+            const [upsellMessage, setUpsellMessage] = useState(null);
+            const [donorBadge, setDonorBadge] = useState(null);
+            const [isBingoMode, setIsBingoMode] = useState(false);
+            const [isLoading, setIsLoading] = useState(false);
+            const [paymentStatus, setPaymentStatus] = useState(null);
+            const [currentDonorIndex, setCurrentDonorIndex] = useState(0);
+            const [isBingoUnlocked, setIsBingoUnlocked] = useState(false);
+            const [showPasswordModal, setShowPasswordModal] = useState(false);
+            const [passwordInput, setPasswordInput] = useState('');
+            const [passwordError, setPasswordError] = useState(false);
+            const [isLocalhost] = useState(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:');
+            const [messages, setMessages] = useState([]);
+            const [newMessageName, setNewMessageName] = useState('');
+            const [newMessageText, setNewMessageText] = useState('');
+            const [showGiftList, setShowGiftList] = useState(false);
+            const [purchasedItems, setPurchasedItems] = useState([]);
+            const [availableItems, setAvailableItems] = useState([]);
+            const [isManualInput, setIsManualInput] = useState(false);
+
+            useEffect(() => {
+                const storedPurchased = JSON.parse(localStorage.getItem('ethan_purchased') || '[]');
+                setPurchasedItems(storedPurchased);
+                const available = RAW_WISHLIST_ITEMS.filter(item => !storedPurchased.includes(item.id));
+                setAvailableItems(available);
+            }, [paymentStatus]);
+
+            const amountVal = parseFloat(amount) || 0;
+            let currentTheme = 'default';
+            if (activeTab === 'donate') {
+                if (isBingoMode) {
+                    if (amountVal >= 120) currentTheme = 'epic';
+                    else if (amountVal >= 80) currentTheme = 'silver';
+                    else if (amountVal >= 40) currentTheme = 'bronze';
+                } else {
+                    if (amountVal >= EPIC_THRESHOLD) currentTheme = 'epic';
+                }
+            }
+
+            const styles = {
+                default: { bg: 'bg-sky-100 bg-dots', card: 'border-white bg-white/90 backdrop-blur-sm', head: 'bg-sky-400', btn: 'bg-sky-500', inp: 'text-sky-600 border-sky-100' },
+                bronze: { bg: 'bg-orange-50 bg-dots', card: 'border-orange-200 bg-white/90', head: 'bg-orange-400', btn: 'bg-orange-500', inp: 'text-orange-800 border-orange-200' },
+                silver: { bg: 'bg-slate-200 bg-dots', card: 'border-slate-300 bg-white/90', head: 'bg-slate-500', btn: 'bg-slate-600', inp: 'text-slate-600 border-slate-300' },
+                epic: { bg: 'bg-slate-950', card: 'epic-container bg-slate-900 text-yellow-100', head: 'bg-gradient-to-r from-yellow-700 to-yellow-900', btn: 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-slate-900', inp: 'bg-slate-900 border-yellow-500 text-yellow-400' }
+            }[currentTheme];
+
+            useEffect(() => {
+                document.getElementById('main-body').className = `font-sans h-full w-full overflow-hidden transition-colors duration-700 ${styles.bg}`;
+            }, [currentTheme]);
+
+            useEffect(() => {
+                const savedMessages = localStorage.getItem('ethan_messages');
+                if (savedMessages) setMessages(JSON.parse(savedMessages));
+                const interval = setInterval(() => setCurrentDonorIndex((prev) => (prev + 1) % FAKE_DONORS.length), 4000);
+                return () => clearInterval(interval);
+            }, []);
+
+            // Lógica Visual
+            useEffect(() => {
+                const value = parseFloat(amount);
+                setUpsellMessage(null);
+                setDonorBadge(null);
+
+                if (!value || value <= 0) {
+                    setMessage(isBingoMode ? 'Participe!' : 'Toque em um ícone');
+                    setProductVisual(null);
+                    setSelectedProduct(null);
+                    return;
+                }
+
+                if (isBingoMode) {
+                    if (value >= 120) setDonorBadge({ text: "REI DO BINGO", color: "bg-yellow-400 text-slate-900" });
+                    else if (value >= 80) setDonorBadge({ text: "DUPLA CHANCE", color: "bg-slate-200 text-slate-600" });
+                    else if (value >= 40) setDonorBadge({ text: "NA DISPUTA", color: "bg-orange-200 text-orange-800" });
+
+                    const tickets = Math.min(Math.floor(value / BINGO_PRICE), BINGO_MAX_TICKETS);
+                    if (tickets >= 3) { setMessage(`3 CARTELAS (MÁX)`); setProductVisual('bingo_epic'); }
+                    else if (tickets === 2) { setMessage(`2 Cartelas`); setProductVisual('bingo_double'); }
+                    else if (tickets === 1) { setMessage(`1 Cartela`); setProductVisual('bingo_single'); }
+                    else { setMessage("Mínimo R$ 40"); setProductVisual('bingo_incomplete'); }
+
+                } else {
+                    if (currentTheme === 'epic') setDonorBadge({ text: "SUPER PADRINHO", color: "bg-yellow-400 text-slate-900" });
+
+                    if (value < MIN_DONATION) { setMessage(`Mínimo R$ ${MIN_DONATION}`); setProductVisual('min_warning'); }
+                    else {
+                        let product = selectedProduct;
+
+                        if (!product || value < product.price) {
+                            product = availableItems.filter(i => i.price <= value).sort((a, b) => b.price - a.price)[0];
+                        }
+
+                        if (product) {
+                            const extra = value - product.price;
+                            setMessage(<span>Paga: <strong>{product.name}</strong> <span className="text-xs opacity-75">(R$ {product.price.toFixed(2)})</span></span>);
+                            setProductVisual('wishlist_item');
+
+                            if (isManualInput && extra > 0) {
+                                setUpsellMessage(`+ R$ ${extra.toFixed(2)} extra para o Ethan! ❤️`);
+                            } else {
+                                setUpsellMessage(null);
+                            }
+                        } else {
+                            setMessage('Arrecadação Livre');
+                            setProductVisual('wipes');
+                        }
+
+                        if (value >= EPIC_THRESHOLD) { setMessage('SUPER PADRINHO! AJUDA MÁXIMA!'); setProductVisual('epic_vip'); }
+                    }
+                }
+            }, [amount, isBingoMode, availableItems, isManualInput]);
+
+            const handleCardClick = (opt) => {
+                setIsManualInput(false);
+                setAmount(opt.value.toString());
+                if (opt.product) setSelectedProduct(opt.product);
+                else setSelectedProduct(null);
+            };
+
+            const handleSelectGiftList = (item) => {
+                setIsManualInput(false);
+                setAmount(item.price.toFixed(2));
+                setSelectedProduct(item);
+                setShowGiftList(false);
+            };
+
+            const handleBingoClick = (targetMode) => {
+                if (targetMode && !isBingoUnlocked) setShowPasswordModal(true);
+                else { setIsBingoMode(targetMode); setAmount(''); setUpsellMessage(null); }
+            };
+
+            const verifyPassword = () => {
+                if (passwordInput === '123') {
+                    setIsBingoUnlocked(true); setShowPasswordModal(false); setIsBingoMode(true); setAmount(''); setPasswordError(false);
+                } else setPasswordError(true);
+            };
+
+            const handlePaymentStart = async () => {
+                setIsLoading(true);
+                try {
+                    const title = selectedProduct ? `Presente: ${selectedProduct.name}` : (isBingoMode ? `Bingo Ethan` : 'Arrecadação Ethan');
+                    const ref = selectedProduct ? `PROD_${selectedProduct.id}` : `VAL_${amount}`;
+                    const response = await fetch(`${API_URL}/create_preference`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title: title, price: parseFloat(amount), quantity: 1, external_reference: ref }),
+                    });
+                    const data = await response.json();
+
+                    if (data.init_point) {
+                        window.location.href = data.init_point;
+                    } else {
+                        throw new Error("Link error");
+                    }
+                } catch (error) {
+                    console.error("Erro API:", error);
+                    // Como não temos link de fallback configurado, apenas avisamos
+                    alert(`Não foi possível conectar ao servidor de pagamento.\nVerifique se o backend está rodando no endereço: ${API_URL}`);
+                    setIsLoading(false);
+                }
+            };
+
+            const handleSendMessage = () => {
+                if (!newMessageName || !newMessageText) return;
+                const newMsg = { name: newMessageName, text: newMessageText, date: new Date().toISOString() };
+                const updatedMessages = [newMsg, ...messages];
+                setMessages(updatedMessages);
+                localStorage.setItem('ethan_messages', JSON.stringify(updatedMessages));
+                setNewMessageName('');
+                setNewMessageText('');
+                setPaymentStatus(null);
+                setAmount('');
+                setActiveTab('messages');
+            };
+
+            useEffect(() => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const status = urlParams.get('status');
+                const externalRef = urlParams.get('external_reference');
+                if (status === 'approved' && externalRef) {
+                    setPaymentStatus('approved');
+                    if (externalRef.startsWith('PROD_')) {
+                        const prodId = parseInt(externalRef.split('_')[1]);
+                        const currentPurchased = JSON.parse(localStorage.getItem('ethan_purchased') || '[]');
+                        if (!currentPurchased.includes(prodId)) {
+                            const newPurchased = [...currentPurchased, prodId];
+                            localStorage.setItem('ethan_purchased', JSON.stringify(newPurchased));
+                            setPurchasedItems(newPurchased);
+                        }
+                    }
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }, []);
+
+            const BingoTicket = ({ count, type }) => {
+                let colorClass = "bg-orange-400 border-orange-600 text-white";
+                if (type === 'silver') colorClass = "bg-slate-300 border-slate-400 text-slate-700";
+                else if (type === 'gold') colorClass = "bg-yellow-400 border-yellow-600 text-yellow-900";
+                return (
+                    <div className="flex flex-col items-center gap-1 animate-bounce-gentle transform scale-110 origin-center">
+                        <div className="flex -space-x-6">
+                            {[...Array(count)].map((_, i) => (
+                                <div key={i} className={`relative w-28 h-16 ${colorClass} border rounded-lg flex items-center justify-center shadow-lg`} style={{ zIndex: count - i }}>
+                                    <div className="border-2 border-dashed border-black/10 absolute inset-1 rounded-md"></div>
+                                    <Ticket size={28} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            };
+
+            const ProductDisplay = () => {
+                if ((!productVisual && !amount) || (!amount && productVisual !== 'bingo_incomplete')) return <div className="text-gray-300"><Smile size={100} strokeWidth={1} /></div>;
+                switch (productVisual) {
+                    case 'min_warning': return <div className="text-red-400 animate-pulse flex flex-col items-center"><AlertCircle size={80} /><span className="text-xl font-bold mt-2">Mínimo R$ {MIN_DONATION}</span></div>;
+                    case 'wipes': return <div className="flex flex-col items-center"><ShoppingBag size={100} className="text-sky-400" /><span className="text-lg text-sky-500 font-bold mt-2">Limpeza</span></div>;
+                    case 'cream': return <div className="flex gap-2 items-center"><Heart size={80} className="text-pink-300" /><span className="text-xl text-pink-400 font-bold">Cuidados</span></div>;
+                    case 'diaper_small': return <div className="flex flex-col items-center"><Baby size={100} className="text-green-500" /><span className="text-xl text-green-600 font-bold mt-2">Dia a Dia</span></div>;
+                    case 'diaper_large': return <div className="flex flex-col items-center"><Gift size={100} className="text-purple-500" /><span className="text-xl text-purple-600 font-bold mt-2">Pacotão</span></div>;
+                    case 'milk': return <div className="flex items-center flex-col"><div className="w-36 h-48 bg-yellow-50 border-4 border-yellow-200 rounded-lg flex items-center justify-center relative shadow-md"><Milk size={80} className="text-yellow-500" /><span className="absolute bottom-3 text-sm font-bold text-yellow-700">Fórmula</span></div></div>;
+                    case 'health_kit': return <div className="flex items-center justify-center gap-4"><div className="p-4 bg-red-50 rounded-full border-2 border-red-100"><Thermometer size={64} className="text-red-400" /></div><div className="p-4 bg-blue-50 rounded-full border-2 border-blue-100"><ShoppingBag size={64} className="text-blue-400" /></div></div>;
+                    case 'wishlist_item': return <div className="flex flex-col items-center animate-bounce-gentle"><Gift size={80} className="text-indigo-500" /><span className="text-indigo-600 font-bold mt-2 bg-indigo-100 px-3 py-1 rounded-full text-xs">Presente Especial!</span></div>;
+                    case 'epic_vip': return (
+                        <div className="flex flex-col items-center animate-bounce-gentle">
+                            <div className="relative">
+                                <Crown size={120} className="text-yellow-400 drop-shadow-md z-10" fill="currentColor" strokeWidth={1.5} />
+                                <div className="absolute inset-0 bg-yellow-400 blur-lg opacity-40 animate-pulse"></div>
+                            </div>
+                            <span className="text-yellow-200 font-black text-2xl tracking-widest mt-2 drop-shadow-sm">SUPER PADRINHO</span>
+                        </div>
+                    );
+                    case 'bingo_single': return <BingoTicket count={1} type="standard" />;
+                    case 'bingo_double': return <BingoTicket count={2} type="silver" />;
+                    case 'bingo_epic': return <BingoTicket count={3} type="gold" />;
+                    case 'bingo_incomplete': return <div className="opacity-50 grayscale flex flex-col items-center"><Utensils size={80} className="mb-2" /><span className="text-xl font-bold">Quase lá...</span></div>;
+                    default: return <Smile size={100} />;
+                }
+            };
+
+            const CardIcon = ({ name }) => {
+                switch (name) {
+                    case 'wipes': return <ShoppingBag size={18} />;
+                    case 'cream': return <Heart size={18} />;
+                    case 'diaper_small': return <Baby size={18} />;
+                    case 'diaper_large': return <Gift size={18} />;
+                    case 'milk': return <Milk size={18} />;
+                    case 'health_kit': return <Thermometer size={18} />;
+                    case 'ticket': return <Ticket size={18} />;
+                    case 'crown': return <Crown size={18} />;
+                    default: return <Smile size={18} />;
+                }
+            };
+
+            const RenderHome = () => (
+                <div className="flex flex-col items-center p-6 text-center animate-fadeIn space-y-6">
+                    <div className="relative w-48 h-48 rounded-full bg-sky-100 border-4 border-sky-200 shadow-xl flex items-center justify-center overflow-hidden mt-8">
+                        <Baby size={80} className="text-sky-300 opacity-50" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-sky-900/10 to-transparent"></div>
+                    </div>
+                    <div className="space-y-2">
+                        <h1 className="text-4xl font-black text-sky-800 tracking-tight drop-shadow-sm font-['Nunito']">Bem-vindos ao<br />Chá do Ethan! 👶</h1>
+                        <p className="text-slate-600 text-sm leading-relaxed max-w-xs mx-auto font-bold">Estamos muito felizes em compartilhar esse momento especial com vocês.</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 w-full">
+                        <div className="bg-white/80 p-4 rounded-3xl shadow-sm border border-sky-100 flex flex-col items-center backdrop-blur-sm"><Gift className="text-green-400 mb-2" size={32} /><span className="text-xs font-black text-slate-500 uppercase tracking-wider">Presenteie</span></div>
+                        <div className="bg-white/80 p-4 rounded-3xl shadow-sm border border-sky-100 flex flex-col items-center backdrop-blur-sm"><Ticket className="text-orange-400 mb-2" size={32} /><span className="text-xs font-black text-slate-500 uppercase tracking-wider">Participe</span></div>
+                    </div>
+                    <button onClick={() => setActiveTab('donate')} className="w-full py-4 bg-sky-500 text-white rounded-2xl font-black text-xl shadow-lg shadow-sky-200 hover:bg-sky-600 transition-all flex items-center justify-center gap-2 animate-bounce-gentle"><Gift size={24} /> Quero Presentear</button>
+                </div>
+            );
+
+            const RenderMessages = () => (
+                <div className="flex flex-col p-4 h-full animate-fadeIn">
+                    <div className="text-center mb-4 mt-2"><h2 className="text-2xl font-black text-sky-800">Mural de Recados 💌</h2><p className="text-xs text-slate-500 font-bold">Recadinhos deixados com carinho.</p></div>
+                    <div onClick={() => setActiveTab('donate')} className="bg-sky-50 border border-sky-200 p-3 rounded-xl mb-4 flex items-center gap-3 cursor-pointer shadow-sm active:scale-95 transition-transform">
+                        <div className="bg-sky-100 p-2 rounded-full text-sky-500"><PenTool size={18} /></div><div className="text-left flex-1"><p className="text-xs font-black text-sky-700">Quer deixar seu recado?</p><p className="text-[10px] text-sky-500 font-bold">Faça uma doação ou participe do bingo!</p></div><ArrowRight size={16} className="text-sky-400" />
+                    </div>
+                    <div className="flex-1 overflow-y-auto space-y-3 pb-20 no-scrollbar">
+                        {messages.length === 0 ? <div className="text-center py-10 opacity-50"><MessageSquare size={48} className="mx-auto text-slate-300 mb-2" /><p className="text-sm text-slate-400 font-bold">O mural está esperando o primeiro recado!</p></div> :
+                            messages.map((msg, idx) => <div key={idx} className="bg-white/80 p-4 rounded-2xl shadow-sm border border-slate-50 relative"><div className="flex justify-between items-start mb-1"><h4 className="font-black text-sky-700">{msg.name}</h4><span className="text-[10px] text-slate-300 font-bold">{new Date(msg.date).toLocaleDateString()}</span></div><p className="text-sm text-slate-600 leading-relaxed font-medium">"{msg.text}"</p><Heart size={14} className="absolute bottom-3 right-3 text-pink-300 fill-pink-300 opacity-30" /></div>)}
+                    </div>
+                </div>
+            );
+
+            if (paymentStatus === 'approved') return (
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 bg-sky-50 relative overflow-hidden animate-fadeIn"><ConfettiRain /><div className="bg-white/90 backdrop-blur-md p-6 rounded-[32px] shadow-2xl max-w-sm w-full border-4 border-white relative z-10 text-center"><div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-500 mb-4 shadow-inner"><Check size={40} strokeWidth={4} /></div><h2 className="text-2xl font-black text-gray-800 mb-1">Obrigado! 💙</h2><p className="text-sm text-gray-500 font-bold mb-6">Seu apoio ao Ethan foi confirmado.</p><div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 mb-6 text-left"><label className="block text-xs font-black text-gray-400 uppercase mb-1 ml-1">Deixe seu Recado</label><input type="text" placeholder="Seu Nome" className="w-full p-3 border border-gray-200 rounded-xl mb-2 text-sm focus:outline-none focus:border-sky-300 font-bold text-gray-700 bg-white" value={newMessageName} onChange={(e) => setNewMessageName(e.target.value)} /><textarea placeholder="Escreva algo carinhoso para o Ethan..." className="w-full p-3 border border-gray-200 rounded-xl mb-0 text-sm focus:outline-none focus:border-sky-300 resize-none h-24 font-medium text-gray-600 bg-white" value={newMessageText} onChange={(e) => setNewMessageText(e.target.value)}></textarea></div><button onClick={handleSendMessage} disabled={!newMessageName || !newMessageText} className={`w-full py-4 rounded-xl font-black flex items-center justify-center gap-2 transition-all transform active:scale-95 text-lg shadow-lg ${(!newMessageName || !newMessageText) ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-green-500 text-white shadow-green-200 hover:bg-green-600'}`}><Send size={20} /> Enviar para o Mural</button><button onClick={() => { setPaymentStatus(null); setAmount(''); setActiveTab('home'); }} className="mt-4 text-xs font-bold text-gray-400 hover:text-gray-600 underline">Pular e voltar ao início</button></div></div>
+            );
+
+            if (paymentStatus === 'processing') return <div className="min-h-screen bg-blue-50 flex flex-col items-center justify-center p-6 text-center"><Loader2 size={64} className="text-blue-500 animate-spin mb-4" /><h2 className="text-xl font-bold text-gray-700">Validando Pagamento...</h2></div>;
+
+            return (
+                <div className="w-full h-full flex flex-col items-center justify-between relative">
+                    <BackgroundDecorations theme={currentTheme} />
+                    {currentTheme === 'epic' && activeTab === 'donate' && <ConfettiRain />}
+                    <GiftListModal isOpen={showGiftList} onClose={() => setShowGiftList(false)} onSelect={handleSelectGiftList} items={availableItems} theme={currentTheme} />
+                    {showPasswordModal && <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 animate-fadeIn backdrop-blur-sm"><div className="bg-white rounded-3xl p-6 w-full max-w-xs shadow-2xl relative text-center border-4 border-sky-100"><button onClick={() => setShowPasswordModal(false)} className="absolute top-3 right-3 text-slate-400 hover:text-slate-600">✕</button><div className="mb-4 flex justify-center"><div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center text-red-400 border-4 border-red-50"><Lock size={28} /></div></div><h3 className="text-xl font-black text-slate-700 mb-1">Acesso Restrito</h3><p className="text-xs text-slate-400 mb-4 font-bold uppercase tracking-wider">Apenas para participantes</p><input type="password" placeholder="Senha" className="w-full p-3 border-2 border-slate-100 rounded-xl mb-3 text-center text-2xl font-black text-slate-700 focus:outline-none focus:border-sky-300 bg-slate-50" value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} />{passwordError && <p className="text-xs text-red-400 mb-3 font-black bg-red-50 py-1 rounded">SENHA INCORRETA</p>}<button onClick={verifyPassword} className="w-full py-3 bg-sky-500 text-white rounded-xl font-black flex items-center justify-center gap-2 shadow-lg shadow-sky-200">Entrar</button></div></div>}
+
+                    <div className={`w-full flex-1 overflow-hidden transition-colors duration-700 z-10 ${activeTab === 'donate' ? '' : ''}`}>
+                        {activeTab === 'home' && <RenderHome />}
+
+                        {activeTab === 'donate' && (
+                            <div className={`w-full h-full flex flex-col max-w-md mx-auto ${isLocalhost ? 'pt-6' : ''}`}>
+                                {!isBingoMode && <div className="bg-white/30 backdrop-blur-md h-7 overflow-hidden relative flex items-center justify-center shrink-0 border-b border-white/20 absolute top-0 w-full z-20"><div key={currentDonorIndex} className="animate-ticker text-[10px] font-bold px-4 text-center truncate w-full"><span className={currentTheme === 'epic' ? 'text-yellow-200' : 'text-sky-800'}>{FAKE_DONORS[currentDonorIndex].name}: "{FAKE_DONORS[currentDonorIndex].msg}"</span></div></div>}
+
+                                <div className={`flex-1 flex flex-col m-2 rounded-[32px] shadow-xl overflow-hidden relative transition-all duration-700 ${currentTheme === 'epic' ? 'epic-container bg-slate-900 text-white shadow-purple-500/50' : 'border-4 border-white bg-white/60 backdrop-blur-md shadow-sky-100'}`}>
+                                    <div className={`p-4 text-center relative transition-colors duration-500 ${styles.head} shrink-0`}>
+                                        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none"><Baby size={100} className="absolute -top-4 -left-4 rotate-12 text-white opacity-20" /><Gift size={60} className="absolute top-4 right-0 -rotate-12 text-white opacity-20" /></div>
+                                        <h2 className="text-2xl font-black text-white relative z-10 drop-shadow-md tracking-tight">Presentear</h2>
+                                    </div>
+
+                                    <div className="p-3 flex-1 flex flex-col gap-2 overflow-y-auto no-scrollbar">
+                                        <ModeSwitcher isBingoMode={isBingoMode} onToggle={handleBingoClick} currentTheme={currentTheme} isLocked={!isBingoUnlocked} />
+
+                                        <div className={`flex gap-2 justify-between shrink-0 ${isBingoMode ? 'justify-center' : ''}`}>
+                                            {(isBingoMode ? BINGO_OPTIONS : DONATION_OPTIONS).map((opt, index) => {
+                                                const isSelected = amount === opt.value.toString();
+                                                const isEpicCard = opt.label === "VIP" || opt.label === "3 Cartelas" || opt.label === "VIP";
+                                                const btnClassWidth = isBingoMode ? 'w-24 flex-none' : 'flex-1';
+
+                                                return (
+                                                    <button key={index} onClick={() => handleCardClick(opt)} className={`relative aspect-square rounded-2xl border-2 flex items-center justify-center transition-all duration-300 card-morph ${btnClassWidth} ${isEpicCard && !isSelected ? opt.color : (currentTheme === 'epic' ? 'border-purple-800 bg-slate-800 text-purple-200' : opt.color)} ${isSelected ? 'border-2 border-current shadow-lg scale-105 z-10 ring-2 ring-offset-1 ring-white/50' : 'opacity-80'}`}>
+                                                        <div className="flex flex-col items-center gap-0.5"><CardIcon name={opt.icon} className="w-5 h-5" /><span className={`text-[10px] font-black leading-none`}>{isBingoMode ? '' : 'R$'}{opt.value}</span></div>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {!isBingoMode && <button onClick={() => setShowGiftList(true)} className={`w-full py-2.5 rounded-xl border-2 font-bold text-xs flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-95 ${currentTheme === 'epic' ? 'bg-slate-800 border-purple-500 text-purple-300' : 'bg-white border-blue-200 text-blue-500 shadow-sm'}`}><List size={14} /> 🎁 Escolher da Lista de Presentes</button>}
+
+                                        <div className="relative shrink-0">
+                                            {donorBadge && <div className={`absolute -top-2 right-2 ${donorBadge.color} text-[9px] font-black px-3 py-0.5 rounded-full border border-white/20 shadow-sm z-10 tracking-wide`}>{donorBadge.text}</div>}
+                                            <span className={`absolute left-4 top-1/2 transform -translate-y-1/2 text-lg font-black ${currentTheme === 'epic' ? 'text-purple-400' : 'text-slate-400'}`}>R$</span>
+                                            <input type="number" value={amount} onChange={(e) => { setIsManualInput(true); setAmount(e.target.value); }} placeholder="0" className={`w-full pl-10 pr-4 py-2 text-3xl font-black border-2 rounded-2xl focus:outline-none text-center ${styles.inp}`} />
+                                        </div>
+
+                                        <div className={`flex-1 flex flex-col items-center justify-center rounded-2xl p-2 border-2 border-dashed border-opacity-50 min-h-0 bg-white/50 ${currentTheme === 'epic' ? 'border-yellow-500/30 bg-slate-800/50' : 'border-slate-200'}`}>
+                                            <div className="scale-90"><ProductDisplay /></div>
+                                            <p className={`text-sm font-bold text-center mt-1 px-2 leading-tight ${currentTheme === 'epic' ? 'text-yellow-100' : 'text-slate-600'}`}>{message}</p>
+                                            {upsellMessage && !isBingoMode && <p className="text-[10px] text-green-600 font-bold mt-1 bg-green-100 px-3 py-1 rounded-full animate-pulse-subtle shadow-sm">{upsellMessage}</p>}
+                                        </div>
+
+                                        <div className="flex justify-center gap-4 mb-2 opacity-80">
+                                            <div className="flex items-center gap-1"><QrCode size={14} className={currentTheme === 'epic' ? 'text-white' : 'text-gray-500'} /><span className={`text-[10px] font-bold ${currentTheme === 'epic' ? 'text-white' : 'text-gray-500'}`}>Pix</span></div>
+                                            <div className="flex items-center gap-1"><CreditCard size={14} className={currentTheme === 'epic' ? 'text-white' : 'text-gray-500'} /><span className={`text-[10px] font-bold ${currentTheme === 'epic' ? 'text-white' : 'text-gray-500'}`}>Cartão</span></div>
+                                            <div className="flex items-center gap-1"><Banknote size={14} className={currentTheme === 'epic' ? 'text-white' : 'text-gray-500'} /><span className={`text-[10px] font-bold ${currentTheme === 'epic' ? 'text-white' : 'text-gray-500'}`}>Boleto</span></div>
+                                        </div>
+
+                                        <button onClick={handlePaymentStart} disabled={!amount} className={`w-full py-3 rounded-2xl text-white font-black text-lg shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0 ${!amount ? 'bg-slate-200 text-slate-400 shadow-none' : styles.btn} ${currentTheme === 'epic' ? 'animate-pulse-subtle' : ''}`}>
+                                            {isLoading ? <Loader2 className="animate-spin" size={20} /> : <><CreditCard size={20} /> Pagar</>}
+                                        </button>
+
+                                        {/* Security Notice */}
+                                        <div className="flex items-center justify-center gap-1.5 mt-1 opacity-70">
+                                            <ShieldCheck size={12} className={currentTheme === 'epic' ? 'text-yellow-200' : 'text-gray-400'} />
+                                            <p className={`text-[10px] font-bold ${currentTheme === 'epic' ? 'text-yellow-200' : 'text-gray-500'}`}>
+                                                Processado por Mercado Pago
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'messages' && <RenderMessages />}
+                    </div>
+
+                    <div className="w-full bg-white/90 backdrop-blur-md border-t border-slate-100 shadow-[0_-5px_20px_rgba(0,0,0,0.03)] h-[70px] flex items-center justify-around z-50 shrink-0">
+                        <button onClick={() => setActiveTab('home')} className={`flex flex-col items-center gap-1 w-16 transition-colors ${activeTab === 'home' ? 'text-sky-500' : 'text-slate-300'}`}>
+                            <Home size={26} className={activeTab === 'home' ? 'fill-sky-100' : ''} />
+                            <span className="text-[10px] font-black tracking-wide">Início</span>
+                        </button>
+
+                        <div className="relative -top-6">
+                            <button onClick={() => setActiveTab('donate')} className={`w-16 h-16 rounded-full flex items-center justify-center shadow-xl shadow-sky-200/50 border-4 border-white transition-all transform active:scale-95 ${activeTab === 'donate' ? 'bg-sky-500 text-white scale-110' : 'bg-slate-100 text-slate-300'}`}>
+                                <Gift size={28} />
+                            </button>
+                        </div>
+
+                        <button onClick={() => setActiveTab('messages')} className={`flex flex-col items-center gap-1 w-16 transition-colors ${activeTab === 'messages' ? 'text-sky-500' : 'text-slate-300'}`}>
+                            <MessageSquare size={26} className={activeTab === 'messages' ? 'fill-sky-100' : ''} />
+                            <span className="text-[10px] font-black tracking-wide">Mural</span>
+                        </button>
+                    </div>
+
+                    {isLocalhost && <div className="fixed top-0 left-0 bg-black text-white text-[9px] p-1 opacity-50 pointer-events-none z-50">BACKEND ON</div>}
+                </div>
+            );
+        };
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
